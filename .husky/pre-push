@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Executando validações completas antes do push..."
+echo "⏳ Isso pode levar alguns minutos..."
+
+# 1. Verificação de tipos TypeScript
+echo "🔍 1/3 - Verificando tipos TypeScript..."
+if npx tsc --noEmit; then
+  echo "✅ Verificação de tipos passou!"
+else
+  echo "❌ Erros de tipo encontrados. Push cancelado."
+  echo "💡 Corrija os erros de TypeScript antes de fazer o push."
+  exit 1
+fi
+
+# 2. Lint (ESLint)
+echo "🧹 2/3 - Executando lint..."
+if npm run lint; then
+  echo "✅ Lint passou!"
+else
+  echo "❌ Problemas de lint encontrados. Push cancelado."
+  echo "💡 Corrija os problemas de lint antes de fazer o push."
+  exit 1
+fi
+
+# 3. Todos os testes
+echo "🧪 3/3 - Executando todos os testes..."
+if npm test; then
+  echo "✅ Todos os testes passaram!"
+else
+  echo "❌ Alguns testes falharam. Push cancelado."
+  echo "💡 Corrija os testes que falharam antes de fazer o push."
+  exit 1
+fi
+
+echo ""
+echo "🎉 Todas as validações passaram!"
+echo "✅ Tipos TypeScript válidos"
+echo "✅ Lint sem problemas" 
+echo "✅ Todos os testes passando"
+echo "" 

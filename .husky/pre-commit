@@ -1,0 +1,73 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Verificando arquivos modificados para executar testes..."
+
+# Pega arquivos que estão no staging area (git add)
+STAGED_FILES=$(git diff --cached --name-only)
+
+if [ -z "$STAGED_FILES" ]; then
+  echo "ℹ️ Nenhum arquivo modificado detectado"
+  exit 0
+fi
+
+echo "📁 Arquivos modificados:"
+echo "$STAGED_FILES"
+
+# Coleta pastas únicas que precisam de teste
+FOLDERS_TO_TEST=""
+
+for file in $STAGED_FILES; do
+  # Só processa arquivos da pasta src
+  if echo "$file" | grep -q "^src/"; then
+    # Pega o diretório do arquivo (remove o nome do arquivo)
+    FILE_DIR=$(dirname "$file")
+    FOLDERS_TO_TEST="$FOLDERS_TO_TEST $FILE_DIR"
+  fi
+done
+
+# Remove duplicatas e espaços extras
+UNIQUE_FOLDERS=$(echo "$FOLDERS_TO_TEST" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+if [ -z "$UNIQUE_FOLDERS" ]; then
+  echo "ℹ️ Nenhuma modificação em pastas com código fonte (src/)"
+  exit 0
+fi
+
+echo "📂 Pastas modificadas: $UNIQUE_FOLDERS"
+
+# Verifica quais pastas têm testes e constrói o padrão para Jest
+TEST_PATTERN=""
+FOLDERS_WITH_TESTS=""
+
+for folder in $UNIQUE_FOLDERS; do
+  # Verifica se existe pelo menos um arquivo .spec.ts na pasta (sem subpastas)
+  if find "$folder" -maxdepth 1 -name "*.spec.ts" | head -1 | grep -q .; then
+    # Remove o prefixo "src/" do caminho para ser relativo ao rootDir do Jest
+    RELATIVE_FOLDER=$(echo "$folder" | sed 's|^src/||')
+    if [ -z "$TEST_PATTERN" ]; then
+      TEST_PATTERN="$RELATIVE_FOLDER/[^/]*\.spec\.ts"
+    else
+      TEST_PATTERN="$TEST_PATTERN|$RELATIVE_FOLDER/[^/]*\.spec\.ts"
+    fi
+    FOLDERS_WITH_TESTS="$FOLDERS_WITH_TESTS $folder"
+  fi
+done
+
+if [ -z "$TEST_PATTERN" ]; then
+  echo "✅ Nenhuma pasta com testes foi modificada"
+  exit 0
+fi
+
+echo "🧪 Executando testes nas pastas:$FOLDERS_WITH_TESTS"
+echo "🎯 Padrão de teste: ($TEST_PATTERN)"
+echo "🚀 Rodando testes..."
+
+# Executa os testes apenas nas pastas modificadas
+if npx jest --testPathPattern="($TEST_PATTERN)" --passWithNoTests; then
+  echo "✅ Todos os testes passaram! Commit pode prosseguir."
+  exit 0
+else
+  echo "❌ Alguns testes falharam. Commit cancelado."
+  exit 1
+fi
