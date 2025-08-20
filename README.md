@@ -29,195 +29,22 @@
 ## Project setup
 
 ```bash
-$ npm install
+$ npm ci
 ```
 
-## Compile and run the project
+## Environment Configuration
+
+- Move the development environment variables file to the default one used by the application:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+mv .env.development .env
 ```
 
-## Run tests
+## How to run in development (Docker)
+
+- Make sure you have Docker and Docker Compose installed, and if you are using Ubuntu WSL with Windows, enable WSL 2 distro integration in Docker compose.
+- To bring up the infrastructure, apply migrations, seeds, and start the application, run:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run docker:dev
 ```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-# Core Banking - API de Mudança de Senha
-
-## Rota: PUT /account/change-password
-
-### Descrição
-
-Esta rota permite alterar a senha de um usuário autenticado no sistema core banking.
-
-### Autenticação
-
-- **Tipo**: Bearer Token
-- **Header**: `Authorization: Bearer <token>`
-
-### Headers Obrigatórios
-
-- `Authorization`: Token JWT de autenticação do usuário
-- `personid`: ID numérico da pessoa (extraído automaticamente do token de autenticação)
-
-### Body da Requisição
-
-```json
-{
-  "verifyTokenId": "123456",
-  "password": "NovaSenha@123"
-}
-```
-
-### Campos do Body
-
-- `verifyTokenId` (string, obrigatório): Token de verificação SMS enviado para o telefone principal da pessoa
-- `password` (string, obrigatório): Nova senha do usuário (mínimo 8 caracteres)
-
-### Resposta de Sucesso (200)
-
-```json
-{
-  "success": true
-}
-```
-
-### Respostas de Erro
-
-#### 400 - Dados Inválidos
-
-```json
-{
-  "message": "Dados de entrada inválidos",
-  "errors": [
-    {
-      "field": "password",
-      "message": "password must be longer than or equal to 8 characters"
-    }
-  ]
-}
-```
-
-#### 401 - Token de Verificação Inválido
-
-```json
-{
-  "message": "Token de verificação inválido"
-}
-```
-
-#### 404 - Pessoa Não Encontrada
-
-```json
-{
-  "message": "Pessoa não encontrada"
-}
-```
-
-#### 500 - Erro Interno
-
-```json
-{
-  "message": "Erro interno do servidor"
-}
-```
-
-### Fluxo da Operação
-
-1. **Autenticação**: Valida o token Bearer e extrai o `personid`
-2. **Busca da Pessoa**: Localiza a pessoa pelo ID fornecido
-3. **Telefone Principal**: Obtém o telefone principal cadastrado da pessoa através do documento
-4. **Validação SMS**: Verifica se o token SMS é válido para o telefone principal
-5. **Criptografia**: Aplica hash bcrypt na nova senha (salt 10)
-6. **Atualização**: Altera a senha do usuário no banco de dados
-7. **Resposta**: Retorna confirmação de sucesso
-
-### Segurança
-
-- A nova senha é criptografada usando bcrypt com salt 10
-- O token de verificação SMS é validado antes de qualquer alteração
-- A rota requer autenticação JWT válida
-- O personid é extraído automaticamente do token de autenticação
-
-### Dependências
-
-- **Repositórios**: PersonRepository, UserRepository
-- **Serviços**: BcryptAdapter, SMSVerificationProvider
-- **Middlewares**: UserAuthenticationMiddleware
-
-### Exemplo de Uso
-
-```bash
-curl -X PUT \
-  http://localhost:3000/account/change-password \
-  -H 'Authorization: Bearer <seu-jwt-token>' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "verifyTokenId": "123456",
-    "password": "MinhaNovaSenh@123"
-  }'
-```
-
-### Códigos de Status HTTP
-
-- `200`: Senha alterada com sucesso
-- `400`: Dados inválidos fornecidos
-- `401`: Token de autenticação ou verificação inválido
-- `404`: Pessoa ou telefone não encontrado
-- `500`: Erro interno do servidor

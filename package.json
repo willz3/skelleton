@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky",
     "seed": "ts-node prisma/seed.ts",
-    "docker:dev:infra": "docker-compose -f docker-compose.dev.yml up -d postgres redis",
+    "docker:dev:infra": "docker-compose -f docker-compose.dev.yml up -d postgres",
     "docker:dev:migrate": "docker-compose -f docker-compose.dev.yml run --rm app npx prisma migrate deploy && docker-compose -f docker-compose.dev.yml run --rm app npx prisma generate",
     "docker:dev:seed": "docker-compose -f docker-compose.dev.yml run --rm app npm run seed",
     "docker:dev:app": "docker-compose -f docker-compose.dev.yml up app",

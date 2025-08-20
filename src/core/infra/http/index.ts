@@ -1,5 +1,5 @@
 import {
-  clientError,
+  badRequest,
   created,
   forbidden,
   IHttpResponse,
@@ -17,7 +17,7 @@ export {
   ok,
   created,
   noContent,
-  clientError,
+  badRequest,
   unauthorized,
   forbidden,
   notAcceptable,
