@@ -4,7 +4,7 @@
 
 O **Profarma** é um projeto desenvolvido pela Mouts IT utilizando o framework NestJS. É uma aplicação backend robusta e escalável construída com TypeScript, seguindo princípios de arquitetura limpa e boas práticas de desenvolvimento.
 
-## Tecnologias Principais
+## ⚙️ Tecnologias Principais
 
 - **Framework**: NestJS 11.x
 - **Linguagem**: TypeScript 5.7.x
@@ -178,7 +178,7 @@ O **Profarma** é um projeto desenvolvido pela Mouts IT utilizando o framework N
 - **Arquivos ignorados** pelo Git
 - Exclui arquivos temporários e dependências
 
-## Scripts NPM Disponíveis
+## 📜 Scripts NPM Disponíveis
 
 ### Desenvolvimento
 
@@ -206,7 +206,7 @@ O **Profarma** é um projeto desenvolvido pela Mouts IT utilizando o framework N
 - `npm run seed`: Popula banco com dados iniciais
 - `npm run prisma:migrate:local`: Migrações locais
 
-## Arquitetura da Aplicação
+## 📍 Arquitetura da Aplicação
 
 O projeto segue os **princípios de Clean Architecture** com:
 
