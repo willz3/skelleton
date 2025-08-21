@@ -215,7 +215,7 @@ O projeto segue os **princípios de Clean Architecture** com:
 3. **Camada de Infraestrutura** (`infra/`): Implementações técnicas
 4. **Camada de Interface** (`modules/*/controllers`): Controllers HTTP
 
-## Padrões de Desenvolvimento
+## 📘 Padrões de Desenvolvimento
 
 - **Dependency Injection** via NestJS
 - **Repository Pattern** para acesso a dados
@@ -225,7 +225,7 @@ O projeto segue os **princípios de Clean Architecture** com:
 - **Pipes** para validação e transformação
 - **Adapter** para inversões de dependência
 
-## Princípios aplicados
+## 📗 Princípios aplicados
 
 - **Single Responsibility Principle (SRP)**
 - **Open Closed Principle**
@@ -237,7 +237,7 @@ O projeto segue os **princípios de Clean Architecture** com:
 - **Keep It Simple, Silly (KISS)**
 - **You Aren't Gonna Need It (YAGNI)**
 
-## Metodologias e Designs
+## 📕 Metodologias e Designs
 
 - **Clean Architecture**
 - **Modular design**
