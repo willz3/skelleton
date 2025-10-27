@@ -1,13 +1,15 @@
+import * as jwt from 'jsonwebtoken';
 import { ConfigDate } from '@/core/shared/utils';
 import { IDecrypter } from '../protocols/decrypter.protocol';
 import { IEncrypter } from '../protocols/encrypter.protocol';
-import * as jwt from 'jsonwebtoken';
 import { jwtConfig } from '@/infra/config';
+import { IDecoder } from '../protocols/decoder.protocol';
 
 export class JwtAdapter
   implements
     IEncrypter<JWTBody, EncrypterOptions>,
-    IDecrypter<DecrypterOptions, TokenPayload>
+    IDecrypter<DecrypterOptions, TokenPayload>,
+    IDecoder<DecoderOptions, TokenPayload>
 {
   private readonly config: JWTProps;
 
@@ -21,6 +23,15 @@ export class JwtAdapter
       },
     };
   }
+  async decode(
+    cipherText: string,
+    options?: DecoderOptions,
+  ): Promise<TokenPayload> {
+    const decoded = await jwt.decode(cipherText, {
+      complete: options?.complete,
+    });
+    return decoded;
+  }
 
   async encrypt(value: JWTBody, options: EncrypterOptions): Promise<string> {
     return jwt.sign(value || {}, this.config.secretKey, {
@@ -30,9 +41,16 @@ export class JwtAdapter
     });
   }
 
-  async decrypt(cipherText: string): Promise<TokenPayload> {
+  async decrypt(
+    cipherText: string,
+    options?: DecrypterOptions,
+  ): Promise<TokenPayload> {
     try {
-      const decoded = await jwt.verify(cipherText, this.config.secretKey);
+      const decoded = await jwt.verify(cipherText, this.config.secretKey, {
+        algorithms: [options?.algorithm],
+        audience: options?.audience,
+        issuer: options?.issuer,
+      });
       return decoded;
     } catch (error) {
       return undefined;
@@ -43,8 +61,13 @@ export class JwtAdapter
 type JWTBody = { [key: string]: unknown };
 type Algorithm = 'HS256' | 'RS256' | 'none';
 type TokenPayload = jwt.JwtPayload | string | undefined;
-type DecrypterOptions = void;
+type DecrypterOptions = {
+  algorithm: Algorithm;
+  audience: string;
+  issuer: string;
+};
 type EncrypterOptions = { expiresIn: ConfigDate };
+type DecoderOptions = { complete: boolean };
 
 type JWTProps = {
   secretKey: string;

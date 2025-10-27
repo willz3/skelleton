@@ -55,6 +55,28 @@ try {
   // nest-winston não está disponível, ignorar
 }
 
+// Mock do Logger do NestJS
+jest.mock('@nestjs/common', () => {
+  const originalModule = jest.requireActual('@nestjs/common');
+  const mockLoggerInstance = {
+    log: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+    verbose: jest.fn(),
+    setContext: jest.fn(),
+  };
+  
+  const MockLogger = jest.fn().mockImplementation(() => mockLoggerInstance);
+  MockLogger.overrideLogger = jest.fn();
+  MockLogger.overrideLogger.andReturnValue = jest.fn();
+  
+  return {
+    ...originalModule,
+    Logger: MockLogger,
+  };
+});
+
 // Função utilitária para criar mock de logger para testes
 global.createMockLogger = () => ({
   log: jest.fn(),
